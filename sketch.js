@@ -1,36 +1,54 @@
+const WIDTH = 400;
+const HEIGHT = 400;
+const BALL_RADIUS = 15;
+const BLOCK_RADIUS = 20;
+const PADDLE_RADIUS = 30;
+
 function setup() {
-  createCanvas(400, 400);
+  createCanvas(WIDTH, HEIGHT);
   for (let i = 0; i < 12; i++) {
-    let p = new Vec2(90*(i%4)+50, 50*floor(i/4)+50);
-    blocks.push(new Block(p, 20));
+    let p = new Vec2(90 * (i % 4) + 50, 50 * floor(i / 4) + 50);
+    blocks.push(new Block(p, BLOCK_RADIUS));
   }
-} 
+}
 
 class Vec2 {
   constructor(_x, _y) {
     this.x = _x;
     this.y = _y;
   }
+
+  // Adiciona um vetor a este vetor
   add(b) {
     let a = this;
     return new Vec2(a.x + b.x, a.y + b.y);
   }
+
+   // Multiplica este vetor por um escalar
   mul(s) {
     let a = this;
     return new Vec2(s * a.x, s * a.y);
   }
+
+  // Retorna a magnitude deste vetor
   mag() {
     let a = this;
     return sqrt(a.x ** 2 + a.y ** 2);
   }
+
+// Subtrai um vetor deste vetor
   sub(b) {
     let a = this;
     return new Vec2(a.x - b.x, a.y - b.y);
   }
+
+  // Normaliza este vetor
   norm() {
     let a = this;
     return a.mul(1 / a.mag());
   }
+
+  // Calcula o produto escalar deste vetor com outro vetor
   dot(b) {
     let a = this;
     return a.x * b.x + a.y * b.y;
@@ -68,25 +86,39 @@ class Paddle {
 }
 
 let ball = new Ball(
-  new Vec2(200, 300),
+  new Vec2(WIDTH / 2, HEIGHT - 100),
   new Vec2(240, -60),
-  15
+  BALL_RADIUS
 );
 
 let blocks = [];
 
-let paddle = new Paddle(new Vec2(200, 320), 30);
+let paddle = new Paddle(new Vec2(WIDTH / 2, HEIGHT - 50), PADDLE_RADIUS);
 
 function draw() {
+  if (blocks.length === 0) {
+    textAlign(CENTER, CENTER);
+    textSize(32);
+    fill(0);
+    text("You Win!", WIDTH / 2, HEIGHT / 2);
+    noLoop();
+    return;
+  }
+
+  if (ball.y + ball.radius >= height) {
+    fill(255, 0, 0);
+    textSize(32);
+    text("You lost", width/2, height/2);
+    noLoop();
+  }  
 
   ball.p = ball.p.add(ball.v.mul(1 / 60));
 
-
-  if ((ball.p.x < 15) || (ball.p.x > 385)) {
+  if ((ball.p.x - BALL_RADIUS < 0) || (ball.p.x + BALL_RADIUS > WIDTH)) {
     ball.v.x = -ball.v.x;
   }
 
-  if ((ball.p.y < 15) || (ball.p.y > 385)) {
+  if ((ball.p.y - BALL_RADIUS < 0) || (ball.p.y + BALL_RADIUS > HEIGHT)) {
     ball.v.y = -ball.v.y;
   }
 
@@ -98,6 +130,8 @@ function draw() {
       ball.v = r;
       blocks.splice(blocks.indexOf(block), 1);
     }
+
+
   }
 
 
